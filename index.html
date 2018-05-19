@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+<input id="button" type="button" value="Find the closest city(village)">
+<script>
+    "use strict"
+    if(!navigator.geolocation){
+        alert ('Your browser do not support geolocation, please download the lattest version of this browser')
+    }else{
+        var cities = {
+            Kolomiya: [48.530374, 25.040458],
+            Otynia: [48.735989, 24.855899],
+            Horodenka: [48.672422, 25.495820],
+            Sniatyn: [48.446078, 25.568977],
+            Palianucya: [48.362345, 24.405309],
+            Yasina: [48.259206, 24.345482],
+            Nadvirna: [48.631322, 24.574754],
+            Deliatyn: [48.532591, 24.624357]
+        };
+
+        var closestCity = {};
+
+        function succes(position) {
+            calculateDistance(position.coords.latitude, position.coords.longitude)
+        }
+        function error(distance) {
+            alert('Can not calculate your current location, please try again later')
+        }
+        var options = {
+            enableHighAccuracy: true,
+            maximumAge: 30000,
+            timeout: 28000
+        };
+        var p = document.createElement('p');
+        function calculateDistance(userLocationX,userLocationY) {
+
+//Converting degrees to radians
+            var userLatitude = userLocationX * Math.PI/180;
+            var userLongitude = userLocationY * Math.PI/180;
+
+            var distance;
+            var minDistance = Infinity;
+
+            for(var current in cities){
+                var cityLatitude = cities[current][0] * Math.PI/180;
+                var cityLongitude = cities[current][1] * Math.PI/180;
+
+                //Calculate the distance between user location  and current city, km
+                distance = +(((Math.acos(Math.sin(userLatitude)*Math.sin(cityLatitude)+
+                    Math.cos(userLatitude)*Math.cos(cityLatitude)*Math.cos(userLongitude-cityLongitude)))*6372795)/1000).toFixed(2)
+
+                if(distance < minDistance) {
+                    minDistance = distance;
+                    closestCity.city = current;
+                    closestCity.distance = minDistance
+                }
+            }
+            p.innerHTML = `<b> Your location:</b> latitude: ${userLocationX.toFixed(6)} ${String.fromCharCode(176)},
+longitude: ${userLocationY.toFixed(6)} ${String.fromCharCode(176)} <br><br>
+<b> Closest city(village)</b>: ${closestCity.city} <br><br>
+<b> Distance to city(village)</b>: ${closestCity.distance}km`
+            document.body.appendChild(p)
+        }
+        var button = document.getElementById('button')
+        button.addEventListener('click', function(){navigator.geolocation.getCurrentPosition(succes, error, options)});
+    }
+</script>
+</body>
+</html>
